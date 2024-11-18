@@ -26,7 +26,7 @@ export const getPosts = async () => {
     try {
         await mongoose.connect(connString, { dbName: "postagram" });
 
-        return await Post.find(); // TODO: approfondimento
+        return await Post.find({ hidden: false });
     } catch (error) {
         console.log(error);
     }
@@ -49,6 +49,27 @@ export const updatePost = async (id: string, title: string, author: string, body
         post.author = author;
         post.body = body;
         post.hidden = hidden;
+
+        return await post.save();
+    } catch (error) {
+        console.log(error);
+    }
+    finally {
+        await mongoose.disconnect();
+    }
+}
+
+export const pubblicaPost = async (id: string) => {
+    try {
+        await mongoose.connect(connString, { dbName: "postagram" });
+
+        const post = await Post.findById(id);
+
+        if (!post) {
+            throw new Error("Post non trovato.");
+        }
+
+        post.hidden = false;
 
         return await post.save();
     } catch (error) {
